@@ -36,6 +36,13 @@ pub struct User {
 }
 ```
 
+Don't forget the annotation on your `id` field! Use `native_id_field` to prefix your ID field with an underscore. Otherwise, just use `id_field`.
+
+To use the indices, call this function early in your code:
+```rust
+User::create_indices(&database).await?;
+```
+
 The API for MongoDB is mostly the same, but collection names are now statically-applied:
 ```rust
 let users = db.auto_collection::<User>();
