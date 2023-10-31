@@ -1,0 +1,5 @@
+[workspace]
+resolver = "2"
+members = ["goldleaf", "goldleaf-derive"]
+package.authors = ["Jack Hogan <jackhogan11@gmail.com>"]
+package.repository = ""

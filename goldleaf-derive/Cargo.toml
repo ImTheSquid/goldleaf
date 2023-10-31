@@ -1,0 +1,16 @@
+[package]
+name = "goldleaf-derive"
+version = "0.1.0"
+edition = "2021"
+description = "Macros for goldleaf."
+
+[lib]
+proc-macro = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+darling = "0.20.3"
+proc-macro2 = "1.0.69"
+quote = "1.0.33"
+syn = "2.0.38"

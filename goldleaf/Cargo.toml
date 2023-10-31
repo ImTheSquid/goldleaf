@@ -1,0 +1,12 @@
+[package]
+name = "goldleaf"
+version = "0.1.0"
+edition = "2021"
+description = "A thin wrapper over MongoDB to make it shine!"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+async-trait = "0.1.74"
+mongodb = "2.7.0"
+goldleaf-derive = { version = "0.1.0", path = "../goldleaf-derive" }
