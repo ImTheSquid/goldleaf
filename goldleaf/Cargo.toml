@@ -3,6 +3,9 @@ name = "goldleaf"
 version = "0.1.0"
 edition = "2021"
 description = "A thin wrapper over MongoDB to make it shine!"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ImTheSquid/goldleaf"
+authors = ["Jack Hogan <jackhogan11@gmail.com>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

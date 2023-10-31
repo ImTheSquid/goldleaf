@@ -3,6 +3,9 @@ name = "goldleaf-derive"
 version = "0.1.0"
 edition = "2021"
 description = "Macros for goldleaf."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ImTheSquid/goldleaf"
+authors = ["Jack Hogan <jackhogan11@gmail.com>"]
 
 [lib]
 proc-macro = true
