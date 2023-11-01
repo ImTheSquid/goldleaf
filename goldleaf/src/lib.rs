@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use mongodb::{Database, error::Error, Collection};
+use mongodb::{Database, Collection};
 
 pub use goldleaf_derive::CollectionIdentity;
 
@@ -7,7 +7,7 @@ pub use goldleaf_derive::CollectionIdentity;
 pub trait CollectionIdentity {
     const COLLECTION: &'static str;
 
-    async fn save(&self, db: &Database) -> Result<(), Error>;
+    async fn save(&self, db: &Database) -> Result<(), mongodb::error::Error>;
 }
 
 /// Procedural macro collection implementation (see `goldleaf_derive::collection_identity`)

@@ -198,16 +198,17 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
 
     // Generate collection identity
     let identity = quote! {
-        impl ::utils::CollectionIdentity for #struct_name {
+        #[::async_trait::async_trait]
+        impl ::goldleaf::CollectionIdentity for #struct_name {
             const COLLECTION: &'static str = #collection_name;
 
-            async fn save(&self, db: &::mongodb::Database) -> ::anyhow::Result<()> {
-                let coll = <::mongodb::Database as ::utils::ProcCollection>::auto_collection::<Self>(db);
-                let res = coll.replace_one(::bson::doc! {
+            async fn save(&self, db: &::mongodb::Database) -> Result<(), ::mongodb::error::Error> {
+                let coll = <::mongodb::Database as ::goldleaf::AutoCollection>::auto_collection::<Self>(db);
+                let res = coll.replace_one(::mongodb::bson::doc! {
                     #id_field: #id_field_value
                 }, self, None).await?;
 
-                assert_eq!(res.matched_count, 1, "unable to find structure with identifying field `{}`", #id_field);
+                debug_assert_eq!(res.matched_count, 1, "unable to find structure with identifying field `{}`", #id_field);
 
                 Ok(())
             }
@@ -296,7 +297,7 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
             });
 
             quote! {
-                ::mongodb::bson::doc!{#(#pairs),*}
+                ::mongodb::mongodb::bson::doc!{#(#pairs),*}
             }
         })
         .collect::<Vec<_>>();
@@ -330,7 +331,7 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
         let has_weights = !pairs.is_empty();
 
         let weights = quote! {
-            ::mongodb::bson::doc!{#(#pairs),*}
+            ::mongodb::mongodb::bson::doc!{#(#pairs),*}
         };
 
         // COLLATION
@@ -368,7 +369,7 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
         let has_pfe = i.pfe.is_some();
         let pfe: proc_macro2::TokenStream = i.pfe.clone().unwrap_or_default().parse().unwrap();
         let pfe = quote! {
-            ::mongodb::bson::doc!{#pfe}
+            ::mongodb::mongodb::bson::doc!{#pfe}
         };
 
         quote! {
@@ -394,7 +395,7 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
     let indices = quote! {
         impl #struct_name {
             pub async fn create_indices(db: &::mongodb::Database) -> Result<(), ::mongodb::error::Error> {
-                let coll = <::mongodb::Database as ::utils::ProcCollection>::auto_collection::<Self>(db);
+                let coll = <::mongodb::Database as ::goldleaf::AutoCollection>::auto_collection::<Self>(db);
 
                 #(#calls)*
                 Ok(())
