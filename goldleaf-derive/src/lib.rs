@@ -198,7 +198,7 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
 
     // Generate collection identity
     let identity = quote! {
-        #[::async_trait::async_trait]
+        #[::goldleaf::async_trait]
         impl ::goldleaf::CollectionIdentity for #struct_name {
             const COLLECTION: &'static str = #collection_name;
 
