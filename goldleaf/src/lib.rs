@@ -1,4 +1,5 @@
 pub use async_trait::async_trait;
+pub use mongodb;
 use mongodb::{Database, Collection};
 
 pub use goldleaf_derive::CollectionIdentity;

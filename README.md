@@ -42,6 +42,7 @@ To use the indices, call this function early in your code:
 ```rust
 User::create_indices(&database).await?;
 ```
+Note: This function will only exist if you create indices on your collection.
 
 The API for MongoDB is mostly the same, but collection names are now statically-applied:
 ```rust

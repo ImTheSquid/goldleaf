@@ -202,9 +202,9 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
         impl ::goldleaf::CollectionIdentity for #struct_name {
             const COLLECTION: &'static str = #collection_name;
 
-            async fn save(&self, db: &::mongodb::Database) -> Result<(), ::mongodb::error::Error> {
-                let coll = <::mongodb::Database as ::goldleaf::AutoCollection>::auto_collection::<Self>(db);
-                let res = coll.replace_one(::mongodb::bson::doc! {
+            async fn save(&self, db: &::goldleaf::mongodb::Database) -> Result<(), ::mongodb::error::Error> {
+                let coll = <::goldleaf::mongodb::Database as ::goldleaf::AutoCollection>::auto_collection::<Self>(db);
+                let res = coll.replace_one(::goldleaf::mongodb::bson::doc! {
                     #id_field: #id_field_value
                 }, self, None).await?;
 
@@ -297,7 +297,7 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
             });
 
             quote! {
-                ::mongodb::mongodb::bson::doc!{#(#pairs),*}
+                ::goldleaf::mongodb::bson::doc!{#(#pairs),*}
             }
         })
         .collect::<Vec<_>>();
@@ -331,30 +331,30 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
         let has_weights = !pairs.is_empty();
 
         let weights = quote! {
-            ::mongodb::mongodb::bson::doc!{#(#pairs),*}
+            ::goldleaf::mongodb::bson::doc!{#(#pairs),*}
         };
 
         // COLLATION
         let use_collation = i.case_insensitivity.is_some();
         let collation = match &i.case_insensitivity {
             None => quote! {
-                ::mongodb::options::Collation::builder().locale("en".to_string()).build()
+                ::goldleaf::mongodb::options::Collation::builder().locale("en".to_string()).build()
             },
             Some(case_insensitivity) => {
                 let locale = &case_insensitivity.locale;
                 let strength = case_insensitivity.strength;
                 let strength = quote! {
                     match #strength {
-                        1 => ::mongodb::options::CollationStrength::Primary,
-                        2 => ::mongodb::options::CollationStrength::Secondary,
-                        3 => ::mongodb::options::CollationStrength::Tertiary,
-                        4 => ::mongodb::options::CollationStrength::Quaternary,
-                        5 => ::mongodb::options::CollationStrength::Identical,
+                        1 => ::goldleaf::mongodb::options::CollationStrength::Primary,
+                        2 => ::goldleaf::mongodb::options::CollationStrength::Secondary,
+                        3 => ::goldleaf::mongodb::options::CollationStrength::Tertiary,
+                        4 => ::goldleaf::mongodb::options::CollationStrength::Quaternary,
+                        5 => ::goldleaf::mongodb::options::CollationStrength::Identical,
                         _ => panic!("Collation strength out of bounds!")
                     }
                 };
                 quote! {
-                    ::mongodb::options::Collation::builder().locale(#locale.to_string()).strength(Some(#strength)).build()
+                    ::goldleaf::mongodb::options::Collation::builder().locale(#locale.to_string()).strength(Some(#strength)).build()
                 }
             },
         };
@@ -369,11 +369,11 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
         let has_pfe = i.pfe.is_some();
         let pfe: proc_macro2::TokenStream = i.pfe.clone().unwrap_or_default().parse().unwrap();
         let pfe = quote! {
-            ::mongodb::mongodb::bson::doc!{#pfe}
+            ::goldleaf::mongodb::bson::doc!{#pfe}
         };
 
         quote! {
-            ::mongodb::options::IndexOptions::builder()
+            ::goldleaf::mongodb::options::IndexOptions::builder()
                 .name(if #index_name.is_empty() {None} else {Some(#index_name.to_string())})
                 .unique(Some(#unique))
                 .expire_after(if #expiration_secs > 0 {Some(::std::time::Duration::from_secs(#expiration_secs))} else {None})
@@ -389,13 +389,13 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
     }).collect::<Vec<_>>();
 
     // Concatenate strings into function call
-    let calls = docs.iter().zip(opts.iter()).map(|(doc, opt)| quote! {coll.create_index(::mongodb::IndexModel::builder().keys(#doc).options(Some(#opt)).build(), None).await?;}).collect::<Vec<_>>();
+    let calls = docs.iter().zip(opts.iter()).map(|(doc, opt)| quote! {coll.create_index(::goldleaf::mongodb::IndexModel::builder().keys(#doc).options(Some(#opt)).build(), None).await?;}).collect::<Vec<_>>();
 
     // Generate quotes
     let indices = quote! {
         impl #struct_name {
-            pub async fn create_indices(db: &::mongodb::Database) -> Result<(), ::mongodb::error::Error> {
-                let coll = <::mongodb::Database as ::goldleaf::AutoCollection>::auto_collection::<Self>(db);
+            pub async fn create_indices(db: &::goldleaf::mongodb::Database) -> Result<(), ::mongodb::error::Error> {
+                let coll = <::goldleaf::mongodb::Database as ::goldleaf::AutoCollection>::auto_collection::<Self>(db);
 
                 #(#calls)*
                 Ok(())

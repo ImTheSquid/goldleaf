@@ -472,7 +472,7 @@ checksum = "6fb8d784f27acf97159b40fc4db5ecd8aa23b9ad5ef69cdd136d3bc80665f0c0"
 
 [[package]]
 name = "goldleaf"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "async-trait",
  "goldleaf-derive",
@@ -482,7 +482,7 @@ dependencies = [
 
 [[package]]
 name = "goldleaf-derive"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "darling 0.20.3",
  "proc-macro2",
