@@ -1,6 +1,6 @@
 pub use async_trait::async_trait;
 pub use mongodb;
-use mongodb::{Database, Collection};
+use mongodb::{Collection, Database};
 
 pub use goldleaf_derive::CollectionIdentity;
 
@@ -13,12 +13,12 @@ pub trait CollectionIdentity {
 
 /// Procedural macro collection implementation (see `goldleaf_derive::collection_identity`)
 pub trait AutoCollection {
-    fn auto_collection<T: CollectionIdentity>(&self) -> Collection<T>;
+    fn auto_collection<T: CollectionIdentity + Send + Sync>(&self) -> Collection<T>;
 }
 
 impl AutoCollection for Database {
     #[inline]
-    fn auto_collection<T: CollectionIdentity>(&self) -> Collection<T> {
+    fn auto_collection<T: CollectionIdentity + Send + Sync>(&self) -> Collection<T> {
         self.collection(T::COLLECTION)
     }
 }

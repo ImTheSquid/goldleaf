@@ -206,7 +206,7 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
                 let coll = <::goldleaf::mongodb::Database as ::goldleaf::AutoCollection>::auto_collection::<Self>(db);
                 let res = coll.replace_one(::goldleaf::mongodb::bson::doc! {
                     #id_field: #id_field_value
-                }, self, None).await?;
+                }, self).await?;
 
                 debug_assert_eq!(res.matched_count, 1, "unable to find structure with identifying field `{}`", #id_field);
 
@@ -389,7 +389,7 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
     }).collect::<Vec<_>>();
 
     // Concatenate strings into function call
-    let calls = docs.iter().zip(opts.iter()).map(|(doc, opt)| quote! {coll.create_index(::goldleaf::mongodb::IndexModel::builder().keys(#doc).options(Some(#opt)).build(), None).await?;}).collect::<Vec<_>>();
+    let calls = docs.iter().zip(opts.iter()).map(|(doc, opt)| quote! {coll.create_index(::goldleaf::mongodb::IndexModel::builder().keys(#doc).options(Some(#opt)).build()).await?;}).collect::<Vec<_>>();
 
     // Generate quotes
     let indices = quote! {

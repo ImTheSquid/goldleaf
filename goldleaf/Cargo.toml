@@ -11,7 +11,7 @@ authors = ["Jack Hogan <jackhogan11@gmail.com>"]
 
 [dependencies]
 async-trait = "0.1.74"
-mongodb = "2.7.0"
+mongodb = "3"
 goldleaf-derive = { version = "0.1.4", path = "../goldleaf-derive" }
 
 [dev-dependencies]
