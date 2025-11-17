@@ -1,3 +1,5 @@
+#![deny(clippy::unwrap_used)]
+
 use proc_macro::TokenStream;
 
 use darling::util::Flag;
@@ -36,6 +38,10 @@ struct FieldIdentityMetaData {
     lang_field: Flag,
     pfe: Option<String>,
 }
+
+const DEFAULT_2D_BITS: u32 = 26;
+const DEFAULT_2D_MIN: f64 = -180.0;
+const DEFAULT_2D_MAX: f64 = 180.0;
 
 #[derive(FromField)]
 #[darling(attributes(db))]
@@ -82,7 +88,7 @@ struct CombinedFieldIdentityData {
 
 impl From<FieldIdentityData> for CombinedFieldIdentityData {
     fn from(value: FieldIdentityData) -> Self {
-        let meta = value.indexing.unwrap();
+        let meta = value.indexing.expect("Indexing metadata");
         CombinedFieldIdentityData {
             ident: value.ident,
             sub: meta.sub,
@@ -95,9 +101,9 @@ impl From<FieldIdentityData> for CombinedFieldIdentityData {
                 None => None,
                 Some(two_d) => Some(match two_d {
                     TwoD::Spherical => TwoDPacked::Spherical {
-                        bits: meta.two_d_bits.unwrap(),
-                        max: meta.two_d_max.unwrap(),
-                        min: meta.two_d_min.unwrap(),
+                        bits: meta.two_d_bits.unwrap_or(DEFAULT_2D_BITS),
+                        max: meta.two_d_max.unwrap_or(DEFAULT_2D_MAX),
+                        min: meta.two_d_min.unwrap_or(DEFAULT_2D_MIN),
                     },
                     TwoD::Cartesian => TwoDPacked::Cartesian,
                 }),
@@ -180,7 +186,13 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
                 panic!("Multiple ID fields not allowed!");
             }
 
-            id_field = Some(field.ident.as_ref().unwrap().to_string());
+            id_field = Some(
+                field
+                    .ident
+                    .as_ref()
+                    .expect("ID field identifier")
+                    .to_string(),
+            );
             native_id = field.native_id_field.is_present();
 
             if !native_id {
@@ -190,7 +202,7 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
     }
 
     let id_field = id_field.expect("ID field must be present!");
-    let id_field_tok: syn::Ident = syn::parse_str(&id_field).unwrap();
+    let id_field_tok: syn::Ident = syn::parse_str(&id_field).expect("Valid parse of ID field");
     let (id_field, id_field_value) = if native_id {
         (
             format!("_{id_field}"),
@@ -371,7 +383,7 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
 
         // PARTIAL FILTER EXPRESSIONS
         let has_pfe = i.pfe.is_some();
-        let pfe: proc_macro2::TokenStream = i.pfe.clone().unwrap_or_default().parse().unwrap();
+        let pfe: proc_macro2::TokenStream = i.pfe.clone().unwrap_or_default().parse().expect("PFE to be parseable");
         let pfe = quote! {
             ::goldleaf::mongodb::bson::doc!{#pfe}
         };
@@ -420,8 +432,12 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
 fn generate_index_pair(field: &CombinedFieldIdentityData) -> IndexPair {
     IndexPair {
         ident: match field.sub.as_ref() {
-            None => field.ident.as_ref().unwrap().to_string(),
-            Some(sub) => format!("{}.{}", field.ident.as_ref().unwrap(), sub),
+            None => field.ident.as_ref().expect("Field identifier").to_string(),
+            Some(sub) => format!(
+                "{}.{}",
+                field.ident.as_ref().expect("Field identifier"),
+                sub
+            ),
         },
         index: if let Some(text_weight) = field.text_weight {
             IndexType::Text(text_weight.into())

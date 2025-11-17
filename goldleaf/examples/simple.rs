@@ -10,6 +10,15 @@ struct Test {
     id: Option<ObjectId>,
     #[db(indexing(index = 1, unique))]
     username: String,
+    #[db(indexing(two_d = "spherical"))]
+    location: Location,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Location {
+    #[serde(rename = "type")]
+    ty: String,
+    pub coordinates: [f32; 2],
 }
 
 fn main() {
