@@ -510,7 +510,7 @@ dependencies = [
 
 [[package]]
 name = "goldleaf"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "async-trait",
  "goldleaf-derive",
@@ -520,7 +520,7 @@ dependencies = [
 
 [[package]]
 name = "goldleaf-derive"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "darling 0.20.11",
  "proc-macro2",

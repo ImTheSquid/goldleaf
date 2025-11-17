@@ -36,7 +36,7 @@ pub struct User {
 }
 ```
 
-Don't forget the annotation on your `id` field! Use `native_id_field` to prefix your ID field with an underscore. Otherwise, just use `id_field`.
+Don't forget the annotation on your ID field! The ID field is what is used to save the document. Use `native_id_field` to prefix your ID field with an underscore (as you would do for the `id` field). Otherwise, just use `id_field` (which automatically creates a unique index on the field).
 
 To use the indices, call this function early in your code:
 ```rust

@@ -11,7 +11,7 @@ enum TwoD {
     Cartesian,
 }
 
-#[derive(FromMeta)]
+#[derive(FromMeta, Default)]
 struct FieldIdentityMetaData {
     /// Subfield for multikey
     sub: Option<String>,
@@ -163,7 +163,7 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
     let struct_name = collection.ident;
 
     // Generate indexing if necessary
-    let fields = collection
+    let mut fields = collection
         .data
         .take_struct()
         .expect("Must be struct")
@@ -172,7 +172,7 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
     let mut id_field = None;
     let mut native_id = false;
 
-    for field in &fields {
+    for field in &mut fields {
         if field.id_field.is_present() || field.native_id_field.is_present() {
             if id_field.is_some()
                 || (field.id_field.is_present() && field.native_id_field.is_present())
@@ -182,6 +182,10 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
 
             id_field = Some(field.ident.as_ref().unwrap().to_string());
             native_id = field.native_id_field.is_present();
+
+            if !native_id {
+                field.indexing.get_or_insert_default().unique = Flag::present();
+            }
         }
     }
 
