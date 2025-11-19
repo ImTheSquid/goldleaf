@@ -1,18 +1,19 @@
 [package]
 name = "goldleaf"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 description = "A thin wrapper over MongoDB to make it shine!"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/ImTheSquid/goldleaf"
 authors = ["Jack Hogan <jackhogan11@gmail.com>"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+sync = ["goldleaf-derive/sync", "mongodb/sync"]
 
 [dependencies]
 async-trait = "0.1.74"
 mongodb = "3"
-goldleaf-derive = { version = "0.3.1", path = "../goldleaf-derive" }
+goldleaf-derive = { version = "0.3.2", path = "../goldleaf-derive" }
 
 [dev-dependencies]
 serde = { version = "1.0.190", features = ["derive"] }

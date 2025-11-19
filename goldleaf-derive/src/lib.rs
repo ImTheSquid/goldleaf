@@ -212,6 +212,23 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
         (id_field, quote!(&self.#id_field_tok))
     };
 
+    let sync_impl = if cfg!(feature = "sync") {
+        quote! {
+            fn save_sync(&self, db: &::goldleaf::mongodb::sync::Database) -> Result<(), ::mongodb::error::Error> {
+                let coll = <::goldleaf::mongodb::sync::Database as ::goldleaf::SyncAutoCollection>::auto_collection::<Self>(db);
+                let res = coll.replace_one(::goldleaf::mongodb::bson::doc! {
+                    #id_field: #id_field_value
+                }, self).run()?;
+
+                debug_assert_eq!(res.matched_count, 1, "unable to find structure with identifying field `{}`", #id_field);
+
+                Ok(())
+            }
+        }
+    } else {
+        quote! {}
+    };
+
     // Generate collection identity
     let identity = quote! {
         #[::goldleaf::async_trait]
@@ -228,6 +245,8 @@ pub fn collection_identity(input: TokenStream) -> TokenStream {
 
                 Ok(())
             }
+
+            #sync_impl
         }
     };
 
